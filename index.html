@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rutinim</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0d0e0c;--panel:#151813;--line:#262b22;--text:#dbe6d4;--mute:#7d8a76;--green:#7bd88f;--blue:#4a8cf0;--orange:#e8923a;--r:6px}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 "JetBrains Mono",ui-monospace,Menlo,Consolas,monospace}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.banner{height:140px;position:relative;background:
+  linear-gradient(#0d0e0c00 55%,#0d0e0c),
+  repeating-linear-gradient(90deg,#1f4d2b 0 28px,#2a6b3a 28px 56px,#173b21 56px 84px,#3a8a4a 84px 112px)}
+.banner i{position:absolute;left:5%;bottom:-18px;font-size:44px;font-style:normal}
+main{max-width:980px;margin:0 auto;padding:0 16px 48px}
+h1{font-size:22px;margin:32px 0 20px}
+h2{font-size:14px;margin:0 0 12px}
+.grid{display:grid;gap:16px;margin-bottom:16px}
+.top{grid-template-columns:1.2fr 1fr}
+.mid{grid-template-columns:1.6fr 1fr}
+.bot{grid-template-columns:1.4fr 1fr}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.bars{display:grid;gap:8px}
+.bars div{display:grid;grid-template-columns:44px 1fr 56px;align-items:center;gap:8px;font-size:12px;color:var(--mute)}
+.bar{height:10px;border:1px solid var(--text);border-radius:3px;overflow:hidden}
+.bar span{display:block;height:100%;background:var(--green)}
+.clock{text-align:center;align-self:center}
+.clock b{display:block;font-size:30px}
+.clock small{color:var(--mute)}
+.row{display:flex;gap:8px;margin-bottom:12px}
+.row input[type=text]{flex:1;background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:6px 10px}
+select,.btn{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:6px 10px;cursor:pointer}
+.btn:hover{border-color:var(--green)}
+ul{list-style:none;margin:0;padding:0}
+.task{display:flex;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--line)}
+.task span.t{flex:1}
+.task.done .t{text-decoration:line-through;color:var(--mute)}
+.tag{font-size:11px;padding:1px 8px;border-radius:3px;color:#0d0e0c;font-weight:700}
+.tag.orta{background:var(--green)}
+.tag.acil{background:var(--orange)}
+.x{background:none;border:0;color:var(--mute);cursor:pointer}
+.x:hover{color:var(--orange)}
+textarea{width:100%;min-height:150px;background:var(--bg);border:1px solid var(--line);border-radius:var(--r);padding:10px;resize:vertical}
+.grp{color:var(--mute);font-size:12px;margin:12px 0 4px;display:flex;justify-content:space-between}
+.hab{display:grid;grid-template-columns:1fr repeat(7,22px);gap:5px;align-items:center;padding:3px 0}
+.hab .days{color:var(--mute);font-size:10px;text-align:center}
+.sq{width:22px;height:22px;border:1px solid var(--mute);border-radius:4px;background:none;cursor:pointer;padding:0}
+.sq.on{background:var(--blue);border-color:var(--blue)}
+.sq.today{outline:1px dashed var(--green);outline-offset:2px}
+.pomo{text-align:center;background:linear-gradient(#0d0e0cd0,#0d0e0cd0),repeating-linear-gradient(135deg,#1f4d2b 0 20px,#173b21 20px 40px)}
+.pomo .modes{display:flex;gap:6px;justify-content:center;margin-bottom:12px}
+.pomo .modes .btn.sel{border-color:var(--green);color:var(--green)}
+.pomo .time{font-size:52px;font-weight:700;margin:8px 0 16px}
+@media (max-width:760px){.top,.mid,.bot{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="banner"><i>🌿</i></div>
+<main>
+  <h1>Rutinim</h1>
+
+  <section class="grid top">
+    <div class="card bars" id="bars">
+      <div><span>Yıl</span><p class="bar"><span id="b-yil"></span></p><em id="t-yil"></em></div>
+      <div><span>Ay</span><p class="bar"><span id="b-ay"></span></p><em id="t-ay"></em></div>
+      <div><span>Hafta</span><p class="bar"><span id="b-hafta"></span></p><em id="t-hafta"></em></div>
+      <div><span>Gün</span><p class="bar"><span id="b-gun"></span></p><em id="t-gun"></em></div>
+    </div>
+    <div class="card clock"><b id="saat"></b><small id="tarih"></small></div>
+  </section>
+
+  <section class="grid mid">
+    <div class="card">
+      <h2>Yapılacaklar</h2>
+      <div class="row">
+        <input type="text" id="gorev" placeholder="Yeni görev..." aria-label="Yeni görev">
+        <select id="etiket" aria-label="Öncelik"><option value="orta">Orta</option><option value="acil">Acil</option></select>
+        <button class="btn" id="ekle">Ekle</button>
+      </div>
+      <ul id="liste"></ul>
+    </div>
+    <div class="card">
+      <h2>Şu anki öncelikler</h2>
+      <textarea id="oncelik" placeholder="1. ...&#10;2. ...&#10;Hedefler: ..."></textarea>
+    </div>
+  </section>
+
+  <section class="grid bot">
+    <div class="card">
+      <h2>Alışkanlıklar</h2>
+      <div id="aliskanlik"></div>
+    </div>
+    <div class="card pomo">
+      <h2>Pomodoro</h2>
+      <div class="modes" id="modlar">
+        <button class="btn sel" data-dk="25">Pomodoro</button>
+        <button class="btn" data-dk="5">Kısa mola</button>
+        <button class="btn" data-dk="15">Uzun mola</button>
+      </div>
+      <div class="time" id="sure">25:00</div>
+      <button class="btn" id="basla">Başlat</button>
+      <button class="btn" id="sifirla">Sıfırla</button>
+    </div>
+  </section>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const yukle = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
+const kaydet = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
+const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text) e.textContent = text; return e; };
+const pad = n => String(n).padStart(2, "0");
+const yerelTarih = d => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+/* Zaman çubukları ve saat */
+function cubuk(id, deger, toplam, yazi) {
+  $("#b-" + id).style.width = Math.min(100, deger / toplam * 100) + "%";
+  $("#t-" + id).textContent = yazi;
+}
+function zaman() {
+  const n = new Date(), y = n.getFullYear();
+  $("#saat").textContent = n.toLocaleTimeString("tr-TR");
+  $("#tarih").textContent = n.toLocaleDateString("tr-TR", { weekday: "long", day: "numeric", month: "long" });
+  const yilGun = Math.floor((n - new Date(y, 0, 1)) / 864e5) + 1;
+  const yilTop = Math.round((new Date(y + 1, 0, 1) - new Date(y, 0, 1)) / 864e5);
+  const ayTop = new Date(y, n.getMonth() + 1, 0).getDate();
+  const haftaGun = (n.getDay() + 6) % 7 + 1;
+  cubuk("yil", yilGun, yilTop, `${yilGun}/${yilTop}`);
+  cubuk("ay", n.getDate(), ayTop, `${n.getDate()}/${ayTop}`);
+  cubuk("hafta", haftaGun, 7, `${haftaGun}/7`);
+  cubuk("gun", n.getHours() + n.getMinutes() / 60, 24, `${n.getHours()}/24`);
+}
+zaman(); setInterval(zaman, 1000);
+
+/* Yapılacaklar */
+let gorevler = yukle("gorevler", []);
+function gorevCiz() {
+  const ul = $("#liste"); ul.textContent = "";
+  gorevler.forEach((g, i) => {
+    const li = el("li", "task" + (g.bitti ? " done" : ""));
+    const kutu = el("input"); kutu.type = "checkbox"; kutu.checked = g.bitti;
+    kutu.setAttribute("aria-label", "Tamamlandı");
+    kutu.onchange = () => { g.bitti = kutu.checked; kaydet("gorevler", gorevler); gorevCiz(); };
+    const sil = el("button", "x", "✕"); sil.setAttribute("aria-label", "Sil");
+    sil.onclick = () => { gorevler.splice(i, 1); kaydet("gorevler", gorevler); gorevCiz(); };
+    li.append(kutu, el("span", "t", g.yazi), el("span", "tag " + g.etiket, g.etiket === "acil" ? "Acil" : "Orta"), sil);
+    ul.append(li);
+  });
+}
+function gorevEkle() {
+  const yazi = $("#gorev").value.trim(); if (!yazi) return;
+  gorevler.push({ yazi, etiket: $("#etiket").value, bitti: false });
+  kaydet("gorevler", gorevler); $("#gorev").value = ""; gorevCiz(); $("#gorev").focus();
+}
+$("#ekle").onclick = gorevEkle;
+$("#gorev").onkeydown = e => { if (e.key === "Enter") gorevEkle(); };
+gorevCiz();
+
+/* Öncelikler */
+$("#oncelik").value = yukle("oncelik", "");
+$("#oncelik").oninput = e => kaydet("oncelik", e.target.value);
+
+/* Alışkanlıklar */
+const gunAd = ["Pt", "Sa", "Ça", "Pe", "Cu", "Ct", "Pz"];
+const bugunNo = (new Date().getDay() + 6) % 7;
+const pazartesi = (() => { const d = new Date(); d.setDate(d.getDate() - bugunNo); return yerelTarih(d); })();
+let liste = yukle("alisk", { "Sabah": ["Soğuk duş", "Günlük yazma", "Spor"], "Akşam": ["Kitap", "Çalışma"] });
+let isaret = yukle("isaret", {});
+function aliskCiz() {
+  const kap = $("#aliskanlik"); kap.textContent = "";
+  Object.keys(liste).forEach(grup => {
+    const baslik = el("div", "grp"); baslik.append(el("span", "", grup));
+    const ekleBtn = el("button", "x", "+ ekle");
+    ekleBtn.onclick = () => { const ad = prompt("Yeni alışkanlık adı:"); if (ad && ad.trim()) { liste[grup].push(ad.trim()); kaydet("alisk", liste); aliskCiz(); } };
+    baslik.append(ekleBtn); kap.append(baslik);
+    const gunSatir = el("div", "hab"); gunSatir.append(el("span"));
+    gunAd.forEach(g => gunSatir.append(el("span", "days", g))); kap.append(gunSatir);
+    liste[grup].forEach(ad => {
+      const anahtar = pazartesi + "|" + ad;
+      const gunler = isaret[anahtar] || Array(7).fill(false);
+      const satir = el("div", "hab"); satir.append(el("span", "", ad));
+      gunler.forEach((acik, i) => {
+        const k = el("button", "sq" + (acik ? " on" : "") + (i === bugunNo ? " today" : ""));
+        k.setAttribute("aria-label", `${ad} ${gunAd[i]}`);
+        k.onclick = () => { gunler[i] = !gunler[i]; isaret[anahtar] = gunler; kaydet("isaret", isaret); aliskCiz(); };
+        satir.append(k);
+      });
+      kap.append(satir);
+    });
+  });
+}
+aliskCiz();
+
+/* Pomodoro */
+let kalan = 25 * 60, tim = null;
+function sureCiz() { $("#sure").textContent = `${pad(Math.floor(kalan / 60))}:${pad(kalan % 60)}`; }
+function durdur() { clearInterval(tim); tim = null; $("#basla").textContent = "Başlat"; }
+$("#basla").onclick = () => {
+  if (tim) return durdur();
+  $("#basla").textContent = "Duraklat";
+  tim = setInterval(() => { kalan--; sureCiz(); if (kalan <= 0) { durdur(); alert("Süre doldu!"); } }, 1000);
+};
+function modSec(dk) { durdur(); kalan = dk * 60; sureCiz(); }
+$("#sifirla").onclick = () => { const s = document.querySelector("#modlar .sel"); modSec(+s.dataset.dk); };
+document.querySelectorAll("#modlar .btn").forEach(b => b.onclick = () => {
+  document.querySelectorAll("#modlar .btn").forEach(x => x.classList.remove("sel"));
+  b.classList.add("sel"); modSec(+b.dataset.dk);
+});
+</script>
+</body>
+</html>
